@@ -1,5 +1,6 @@
 from flask import Flask, render_template
 from bs4 import BeautifulSoup
+from datetime import datetime
 import urllib2
 import hashlib
 import os
@@ -25,6 +26,9 @@ def status_has_changed():
     # Construct the new hash
     order_html = get_order_info_html()
     new_hash = hashlib.md5(order_html).hexdigest()
+
+    # Log new hash
+    print str(datetime.now), new_hash
 
     # Return  true if the hashes are different
     return old_hash != new_hash
