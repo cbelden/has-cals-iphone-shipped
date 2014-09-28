@@ -52,4 +52,4 @@ def get_order_info_html():
     return str(soup.select("div.contentContainerNoHead"))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
