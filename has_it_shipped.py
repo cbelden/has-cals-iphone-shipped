@@ -28,7 +28,7 @@ def status_has_changed():
     new_hash = hashlib.md5(order_html).hexdigest()
 
     # Log new hash
-    print str(datetime.now), new_hash
+    print str(datetime.now()), new_hash
 
     # Return  true if the hashes are different
     return old_hash != new_hash
