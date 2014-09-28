@@ -5,13 +5,14 @@ import hashlib
 import os
 
 
-app = Flask()
+app = Flask(__name__)
 
 @app.route('/')
 def index():
     """Returns/Renders the home (only) page."""
     has_changed = 'yes' if status_has_changed() else 'no'
     return render_template('index.html', has_it_shipped=has_changed)
+
 
 def status_has_changed():
     """
@@ -51,4 +52,4 @@ def get_order_info_html():
     return str(soup.select("div.contentContainerNoHead"))
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
