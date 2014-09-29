@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+import redis
 from bs4 import BeautifulSoup
 from datetime import datetime
 import urllib2
@@ -6,12 +7,29 @@ import hashlib
 import os
 
 
+# In-memory store
+redis_url = os.getenv('REDISTOGO_URL', 'redis://localhost:6379')
+redis = redis.from_url(redis_url)
+
+
 app = Flask(__name__)
+
 
 @app.route('/')
 def index():
     """Returns/Renders the home (only) page."""
-    has_changed = 'yes' if status_has_changed() else 'no'
+
+    # Check cache for most recent status
+    has_changed = redis.get('has_changed')
+
+    # Check if the status has changed and store value in cache (timeout=5 mins)
+    if not has_changed:
+        print str(datetime.now()), 'cache miss'
+        has_changed = 'yes' if status_has_changed() else 'no'
+        redis.setex('has_changed', has_changed, 60*10)
+    else:
+        print str(datetime.now()), 'cache hit'
+
     return render_template('index.html', has_it_shipped=has_changed)
 
 
@@ -19,7 +37,6 @@ def status_has_changed():
     """
     Returns true if the md5 hash of order_html does not match the md5 hash stored in the shipping info hash file.
     """
-
     # Get the previous hash
     old_hash = os.environ["OLD_STATUS_HASH"]
 
@@ -38,7 +55,6 @@ def get_order_info_html():
     """
     Retrieves the html for my iphone's order status from 
     """
-
     # This is the order status url from my Verizon email
     order_status_url = os.environ['STATUS_URL'];
     
