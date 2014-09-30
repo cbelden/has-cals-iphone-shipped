@@ -22,7 +22,7 @@ def index():
     # Check cache for most recent status
     has_changed = redis.get('has_changed')
 
-    # Check if the status has changed and store value in cache (timeout=5 mins)
+    # If the cache expired, check if the status has changed and store in cache (timeout=10 mins)
     if not has_changed:
         print str(datetime.now()), 'cache miss'
         has_changed = 'yes' if status_has_changed() else 'no'
@@ -35,7 +35,7 @@ def index():
 
 def status_has_changed():
     """
-    Returns true if the md5 hash of order_html does not match the md5 hash stored in the shipping info hash file.
+    Returns true if the order status page has changed since the last lookup.
     """
     # Get the previous hash
     old_hash = os.environ["OLD_STATUS_HASH"]
@@ -53,9 +53,9 @@ def status_has_changed():
 
 def get_order_info_html():
     """
-    Retrieves the html for my iphone's order status from 
+    Retrieves the html for my iphone's order status from the order status page.
     """
-    # This is the order status url from my Verizon email
+    # This is url to the order status page
     order_status_url = os.environ['STATUS_URL'];
     
     # Set user agent to the default User-agent in Chrome (Verizon blocks urllib2's default user agent)
